@@ -4,31 +4,31 @@ wifiFile="interfaces-wifi"
 hotspotFile="interfaces-hotspot"
 
 function setToWifi {
-    sudo rm /etc/network/interfaces
-    sudo cp interfaces-wifi /etc/network/interfaces
+    	sudo rm /etc/network/interfaces
+    	sudo cp interfaces-wifi /etc/network/interfaces
 	whiptail --title "Network Switch" --msgbox "Network has been set to Wifi. Choose Ok to continue." 10 60
 }
 
 function createWifi {
     	echo "auto lo
-iface lo inet loopback
-iface eth0 inet manual
-allow-hotplug wlan0
-iface wlan0 inet static
+	iface lo inet loopback
+	iface eth0 inet manual
+	allow-hotplug wlan0
+	iface wlan0 inet static
         address 192.168.0.40
         netmask 255.255.255.0
-    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf" >> interfaces-wifi
+    	wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf" >> interfaces-wifi
 }
 
 function setToHotspot {
 	sudo rm /etc/network/interfaces
-    sudo cp interfaces-hotspot /etc/network/interfaces
+    	sudo cp interfaces-hotspot /etc/network/interfaces
 }
 
 function createHotspot {
-    echo "auto lo
-allow-hotplug wlan0
-iface wlan0 inet static
+    	echo "auto lo
+	allow-hotplug wlan0
+	iface wlan0 inet static
         address 10.5.5.1
         netmask 255.255.255.0" >> interfaces-hotspot
 }
@@ -42,10 +42,9 @@ function reboot {
 }
 
 function restartNetwork {
-    sudo systemctl daemon-reload
-    sudo service networking restart
-    sudo ifdown wlan0
-    sudo ifup wlan0
+    	sudo /etc/init.d/networking stop
+	sudo systemctl daemon-reload
+	sudo /etc/init.d/networking start
 }
 
 OPTION=$(whiptail --title "Network Switch" --menu "Choose your option" 15 60 4 \
