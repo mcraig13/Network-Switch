@@ -12,11 +12,10 @@ function setToWifi {
 function createWifi {
     	echo "auto lo
 	iface lo inet loopback
-	iface eth0 inet manual
+	iface eth0 inet dhcp
 	allow-hotplug wlan0
-	iface wlan0 inet static
-        address 192.168.0.40
-        netmask 255.255.255.0
+	iface wlan0 inet manual
+	iface default inet dhcp
     	wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf" >> interfaces-wifi
 }
 
@@ -55,24 +54,26 @@ OPTION=$(whiptail --title "Network Switch" --menu "Choose your option" 15 60 4 \
 if [ $OPTION = 1 ]; then
 	if [ -f "$wifiFile" ]; then
 		setToWifi
-        restartNetwork
+        	restartNetwork
   	else
-        createWifi
-        setToWifi
-        restartNetwork
-    fi
+        	createWifi
+        	setToWifi
+        	restartNetwork
+    	fi
 elif [ $OPTION = 2 ]; then
-    if [ -f "$hotspotFile" ]; then
-        setToHotspot
-        reboot
-    else
-        createHotspot
-        setToHotspot
-        reboot
-    fi
+    	if [ -f "$hotspotFile" ]; then
+        	setToHotspot
+		restartNetwork
+        	reboot
+    	else
+        	createHotspot
+        	setToHotspot
+		restartNetwork
+        	reboot
+    	fi
 elif [ $OPTION = 3 ]; then
-    restartNetwork
-    whiptail --title "Network Restarted" --msgbox "Network has been restarted. Now you will need to connect to a Wifi network else it will fail. Whether it says it's connected or not it's probably lying to you. /...End of rant.../" 10 60
+    	restartNetwork
+    	whiptail --title "Network Restarted" --msgbox "Network has been restarted. Now you will need to connect to a Wifi network else it will fail. Whether it says it's connected or not it's probably lying to you. /...End of rant.../" 10 60
 else
-    whiptail --title "Cancelled" --msgbox "Operation cancelled. Choose Ok to continue." 10 60
+   	whiptail --title "Cancelled" --msgbox "Operation cancelled. Choose Ok to continue." 10 60
 fi
