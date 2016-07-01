@@ -7,10 +7,11 @@
 #source-directory /etc/network/interfaces.d
 
 auto lo
+
 iface lo inet loopback
-iface eth0 inet manual
+iface eth0 inet dhcp
+
 allow-hotplug wlan0
-iface wlan0 inet static
-        address 192.168.0.40
-        netmask 255.255.255.0
-    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+iface wlan0 inet manual
+wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+iface default inet dhcp

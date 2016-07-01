@@ -2,6 +2,7 @@
 
 wifiFile="interfaces-wifi"
 hotspotFile="interfaces-hotspot"
+hostapdFile="hostapd.conf"
 
 function setToWifi {
     	sudo rm /etc/network/interfaces
@@ -14,6 +15,7 @@ function createWifi {
 	iface lo inet loopback
 	iface eth0 inet dhcp
 	allow-hotplug wlan0
+	auto wlan0
 	iface wlan0 inet manual
 	iface default inet dhcp
     	wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf" >> interfaces-wifi
@@ -32,6 +34,38 @@ function createHotspot {
         netmask 255.255.255.0" >> interfaces-hotspot
 }
 
+function setHostapd {
+	sudo rm /etc/hostapd/hostapd.conf
+	sudo cp hostapd.conf /etc/hostapd
+}
+
+function createHostapd {
+	echo "interface=wlan0
+	driver=nl80211
+	ssid=RPiHotspot
+	country_code=GB
+	hw_mode=g
+	channel=6
+	ieee80211n=1
+	macaddr_acl=0
+	auth_algs=1
+	ignore_broadcast_ssid=0
+	wpa=2
+	wpa_passphrase=raspberry
+	wpa_key_mgmt=WPA-PSK
+	wpa_pairwise=TKIP
+	rsn_pairwise=CCMP" >> hostapd.conf
+}
+
+function deleteHostapd {
+	sudo rm /etc/hostapd/hostapd.conf
+}
+
+function restartHostapd {
+	sudo service hostapd stop
+	sudo service hostapd start
+}
+
 function reboot {
 	if (whiptail --title "Network Switch" --yesno "Network has been set to hotspot, would you like to reboot now?" 10 60) then
     		sudo reboot
@@ -41,9 +75,7 @@ function reboot {
 }
 
 function restartNetwork {
-    	sudo /etc/init.d/networking stop
-	sudo systemctl daemon-reload
-	sudo /etc/init.d/networking start
+	sudo ifdown wlan0 && sudo ifup wlan0
 }
 
 OPTION=$(whiptail --title "Network Switch" --menu "Choose your option" 15 60 4 \
@@ -54,26 +86,28 @@ OPTION=$(whiptail --title "Network Switch" --menu "Choose your option" 15 60 4 \
 if [ $OPTION = 1 ]; then
 	if [ -f "$wifiFile" ]; then
 		setToWifi
+		deleteHostapd
         	restartNetwork
   	else
         	createWifi
         	setToWifi
+		deleteHostapd
         	restartNetwork
     	fi
 elif [ $OPTION = 2 ]; then
-    	if [ -f "$hotspotFile" ]; then
-        	setToHotspot
-		restartNetwork
-        	reboot
-    	else
+	if [ ! -f "$hotspotFile" ]; then
         	createHotspot
+	elif [ ! -f "$hostapdFile" ]; then
+		createHostapd
+    	elif [ -f "$hotspotFile" ] && [ -f "$hostapdFile" ]; then
         	setToHotspot
+		setHostapd
 		restartNetwork
-        	reboot
+		restartHostapd
     	fi
 elif [ $OPTION = 3 ]; then
     	restartNetwork
-    	whiptail --title "Network Restarted" --msgbox "Network has been restarted. Now you will need to connect to a Wifi network else it will fail. Whether it says it's connected or not it's probably lying to you. /...End of rant.../" 10 60
+    	whiptail --title "Network Restarted" --msgbox "Network has been restarted." 10 60
 else
    	whiptail --title "Cancelled" --msgbox "Operation cancelled. Choose Ok to continue." 10 60
 fi
