@@ -11,6 +11,7 @@ Compatible with:
   - Raspberry Pi 1
   - Raspberry Pi 2
   - Raspberry Pi 3
+  - Debian OS / Linux
 
 Requires the built in WiFi of the Pi 3 or a dongle attached.
 
