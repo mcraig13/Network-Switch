@@ -4,6 +4,21 @@ wifiFile="interfaces-wifi"
 hotspotFile="interfaces-hotspot"
 hostapdFile="hostapd.conf"
 
+
+function setToStatic {
+	staticIP=$(whiptail --inputbox "Enter the IP you wish to set to" 10 30 3>&1 1>&2 2>&3)
+	sudo rm /etc/network/interfaces
+	sudo echo "auto lo
+	iface lo inet loopback
+	iface eth0 inet dhcp
+	allow hotplug wlan0
+	iface wlan0 inet static
+	address $staticIP
+	netmask 255.255.255.0" >> /etc/network/interfaces
+
+	whiptail --ok-button Done --msgbox "Static IP has been set to $staticIP" 10 30
+}
+
 function setToWifi {
     	sudo rm /etc/network/interfaces
     	sudo cp interfaces-wifi /etc/network/interfaces
@@ -81,7 +96,8 @@ function restartNetwork {
 OPTION=$(whiptail --title "Network Switch" --menu "Choose your option" 15 60 4 \
 "1" "Wifi" \
 "2" "Hotspot" \
-"3" "Restart Network" 3>&1 1>&2 2>&3)
+"3" "Set Static IP" \
+"4" "Restart Network" 3>&1 1>&2 2>&3)
 
 if [ $OPTION = 1 ]; then
 	if [ -f "$wifiFile" ]; then
@@ -106,6 +122,9 @@ elif [ $OPTION = 2 ]; then
 		restartHostapd
     	fi
 elif [ $OPTION = 3 ]; then
+	setToStatic
+	restartNetwork
+elif [ $OPTION = 4 ]; then
     	restartNetwork
     	whiptail --title "Network Restarted" --msgbox "Network has been restarted." 10 60
 else
