@@ -18,14 +18,14 @@ If a dongle is used then you can check that it supports hotspotting by doing the
   sudo apt-get install iw
   iw list | less
   
-  Check in the iw list for the entry relating to AP mode:
-    Supported interface modes:
-      - IBSS
-      - managed
-      - AP          <---
-      - AP/VLAN     <---
-      - WDS
-      - monitor
-      - mesh point
+Check in the iw list for the entry relating to AP mode:
+Supported interface modes:
+  - IBSS
+  - managed
+  - AP          <---
+  - AP/VLAN     <---
+  - WDS
+  - monitor
+  - mesh point
       
 Further development can have checks in place that will do this for you.
